@@ -27,14 +27,14 @@ const val HOME_ROUTE = "home"
 const val SEARCH_ROUTE = "search"
 @Composable
 fun MainView() {
-//    val userVM = viewModel<UserViewModel>()
-//
-//    if(userVM.username.value.isEmpty()){
-//        Login(userVM)
-//    } else {
-//            MainScaffoldView()
-//    }
-    MainScaffoldView()
+    val userVM = viewModel<UserViewModel>()
+
+    if(userVM.username.value.isEmpty()){
+        Login(userVM)
+    } else {
+            MainScaffoldView()
+    }
+
 
 }
 
@@ -53,7 +53,7 @@ fun TopBarView(){
     val userVM = viewModel<UserViewModel>()
     Row(modifier = Modifier
         .fillMaxWidth()
-        .background(Color.Cyan)
+        .background(Color(0xFF5DC0EC))
         .padding(10.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
@@ -69,7 +69,7 @@ fun TopBarView(){
 fun BottomBarView (navController : NavHostController){
     Row(modifier = Modifier
         .fillMaxWidth()
-        .background(Color.Cyan),
+        .background(Color(0xFF5DC0EC)),
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically
     ){
@@ -121,10 +121,20 @@ fun SearchHistory() {
         }
         Spacer(modifier = Modifier.height(20.dp))
         if(historyList.isNotEmpty() ) {
-            historyList.forEach{
-                Spacer(modifier = Modifier.height(20.dp))
-                Text(text = it, fontSize = 20.sp)
+            Row (){
+                historyList.forEach{
+                    Spacer(modifier = Modifier.height(20.dp))
+                    Text(text = it, fontSize = 20.sp)
+                    Spacer(modifier = Modifier.width(20.dp))
+                    AsyncImage(
+                        model = "https://countryflagsapi.com/png/${it}",
+                        contentDescription = "",
+                        modifier = Modifier.size(40.dp)
+                    )
+                }
+
             }
+
         } else {
             Text(text = " You have not searched anything yet", fontSize = 18.sp)
         }
@@ -156,9 +166,10 @@ fun HomeView() {
                 horizontalAlignment = Alignment.CenterHorizontally,
 
 
+
                 ) {
                 Text(
-                    text = "Search Bar",
+                    text = "Search for flag",
                     fontSize = 24.sp
                 )
                 Spacer(modifier = Modifier.height(20.dp))
@@ -188,7 +199,7 @@ fun HomeView() {
 
         Row(
             horizontalArrangement = Arrangement.End,
-            modifier = Modifier.background(Color.Cyan)
+            modifier = Modifier.background(Color(0xFF33A1D3))
         ) {
             Icon(
                 painter = painterResource(if (!isHidden) R.drawable.ic_baseline_arrow_drop_up_24 else R.drawable.ic_baseline_arrow_drop_down),
@@ -217,31 +228,40 @@ fun HomeView() {
 
 
 
-        //Login stuff
-        @Composable
-        fun Login(userVM: UserViewModel) {
+//Login stuff
+@Composable
+fun Login(userVM: UserViewModel) {
 
-            var email by remember { mutableStateOf("") }
-            var pw by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var pw by remember { mutableStateOf("") }
 
-            Column(
+    Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(250.dp),
-                verticalArrangement = Arrangement.SpaceEvenly,
+                    .fillMaxSize()
+                    .background(Color.White),
+
+                verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+        AsyncImage(
+            model = "https://upload.wikimedia.org/wikipedia/commons/1/11/Flag_of_the_United_Nations.png",
+            contentDescription = "",
+            modifier = Modifier.size(150.dp)
+        )
+            Text(text = "Flag app", fontSize = 50.sp)
                 OutlinedTextField(
                     value = email,
                     onValueChange = { email = it },
                     label = { Text(text = "Email") }
                 )
+            Spacer(modifier = Modifier.height(20.dp))
                 OutlinedTextField(
                     value = pw,
                     onValueChange = { pw = it },
                     label = { Text(text = "Password") },
                     visualTransformation = PasswordVisualTransformation()
                 )
+            Spacer(modifier = Modifier.height(20.dp))
                 OutlinedButton(onClick = {
                     userVM.loginUser(email, pw)
                 }) {
