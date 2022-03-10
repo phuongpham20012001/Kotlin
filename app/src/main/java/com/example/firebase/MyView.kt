@@ -9,10 +9,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -32,12 +34,11 @@ fun MainView() {
     if(userVM.username.value.isEmpty()){
         Login(userVM)
     } else {
-            MainScaffoldView()
+        MainScaffoldView()
     }
 
 
 }
-
 
 @Composable
 fun MainScaffoldView() {
@@ -57,11 +58,11 @@ fun TopBarView(){
         .padding(10.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
-        ) {
+    ) {
         Text(text = " Hello ${userVM.username.value}")
         OutlinedButton(onClick = {userVM.logoutUser()}) {
             Text(text = "Log Out")
-            
+
         }
     }
 }
@@ -121,7 +122,7 @@ fun SearchHistory() {
         }
         Spacer(modifier = Modifier.height(20.dp))
         if(historyList.isNotEmpty() ) {
-            Row (){
+            Column (){
                 historyList.forEach{
                     Spacer(modifier = Modifier.height(20.dp))
                     Text(text = it, fontSize = 20.sp)
@@ -145,15 +146,16 @@ fun SearchHistory() {
 }
 
 @Composable
-fun HomeView() {
+fun HomeView( ) {
     var isHidden by remember { mutableStateOf(false) }
     var search by remember { mutableStateOf( "")}
     var zzz by remember { mutableStateOf(false) }
+    val countryVM = viewModel<CountryViewModel> (LocalContext.current as ViewModelStoreOwner)
 
     Column(modifier = Modifier
         .fillMaxSize()
         .background(Color(0xFFFFFFFF))
-        .padding(10.dp),
+        ,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
@@ -181,10 +183,11 @@ fun HomeView() {
                 Spacer(modifier = Modifier.height(20.dp))
                 OutlinedButton(
                     onClick = {
-                    val fireStore = Firebase.firestore
+                        countryVM.getCountry(search)
+                        val fireStore = Firebase.firestore
                         fireStore.collection("History").add(SearchData(search))
                         zzz = !zzz
-                    //search = ""
+                        //search = ""
 
                     }
                 ) {
@@ -216,8 +219,13 @@ fun HomeView() {
                 AsyncImage(
                     model = "https://countryflagsapi.com/png/${search}",
                     contentDescription = "",
-                    modifier = Modifier.size(200.dp)
+                    modifier = Modifier.size(125.dp)
                 )
+                Text(text = "Capital: ${countryVM.capital.value}")
+                Text(text = "Population: ${countryVM.population.value}" )
+                Text(text = "Area: ${countryVM.area.value}")
+                Text(text = " Continent: ${countryVM.continents.value}")
+                Text(text = "Timezone: ${countryVM.timezones.value}")
             }
         } else {
             Column {}
@@ -236,40 +244,40 @@ fun Login(userVM: UserViewModel) {
     var pw by remember { mutableStateOf("") }
 
     Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.White),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+            .padding(0.dp, 30.dp,0.dp,0.dp)
+        ,
 
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         AsyncImage(
             model = "https://upload.wikimedia.org/wikipedia/commons/1/11/Flag_of_the_United_Nations.png",
             contentDescription = "",
             modifier = Modifier.size(150.dp)
         )
-            Text(text = "Flag app", fontSize = 50.sp)
-                OutlinedTextField(
-                    value = email,
-                    onValueChange = { email = it },
-                    label = { Text(text = "Email") }
-                )
-            Spacer(modifier = Modifier.height(20.dp))
-                OutlinedTextField(
-                    value = pw,
-                    onValueChange = { pw = it },
-                    label = { Text(text = "Password") },
-                    visualTransformation = PasswordVisualTransformation()
-                )
-            Spacer(modifier = Modifier.height(20.dp))
-                OutlinedButton(onClick = {
-                    userVM.loginUser(email, pw)
-                }) {
-                    Text(text = "Log in")
+        Text(text = "Country app", fontSize = 50.sp)
+        OutlinedTextField(
+            value = email,
+            onValueChange = { email = it },
+            label = { Text(text = "Email") }
+        )
+        Spacer(modifier = Modifier.height(20.dp))
+        OutlinedTextField(
+            value = pw,
+            onValueChange = { pw = it },
+            label = { Text(text = "Password") },
+            visualTransformation = PasswordVisualTransformation()
+        )
+        Spacer(modifier = Modifier.height(20.dp))
+        OutlinedButton(onClick = {
+            userVM.loginUser(email, pw)
+        }) {
+            Text(text = "Log in")
 
-                }
-
-            }
         }
 
-
+    }
+}
